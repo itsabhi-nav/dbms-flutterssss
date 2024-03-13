@@ -52,7 +52,7 @@ def index():
             bday = item['Birthday'].strftime("%d-%m")  
             if today == bday and yearNow not in str(item['Year']):
                 try:
-                    sendEmail(item['Email'], "Happy Birthday", item['Dialogue'], GMAIL_ID, GMAIL_PSWD)
+                    sendEmail(item['Email'], item['Subject'], item['Dialogue'], GMAIL_ID, GMAIL_PSWD)
                     sent_emails.append({'name': item['Name'], 'status': 'success'})  
                     print(f"Wished Happy Birthday to {item['Name']}.")
                 except Exception as e:
@@ -94,16 +94,17 @@ def add_user():
         email = request.form['email']
         birthday_str = request.form['birthday']
         dialogue = request.form['dialogue']
+        subject = request.form['subject']
         
         if not re.match(r'^\d{4}-\d{2}-\d{2}$', birthday_str):
             flash("Invalid date format. Please use YYYY-MM-DD format for birthday.", "error")
-            return redirect(url_for('index'))
+            return redirect(url_for('add_user'))
 
         try:
             birthday = datetime.datetime.strptime(birthday_str, "%Y-%m-%d").date()
         except ValueError:
             flash("Invalid date. Please provide a valid date in YYYY-MM-DD format.", "error")
-            return redirect(url_for('index'))
+            return redirect(url_for('add_user'))
         
         birthday_datetime = datetime.datetime.combine(birthday, datetime.datetime.min.time())
 
@@ -114,19 +115,20 @@ def add_user():
         existing_data = collection.find_one({"Name": name, "Email": email})
         if existing_data:
             flash("Data already exists in the database. Cannot add duplicate entries.", "error")
-            return redirect(url_for('index'))
+            return redirect(url_for('add_user'))
         
         new_user = {
             "Name": name,
             "Birthday": birthday_datetime,  
             "Year": str(birthday.year),
             "Email": email,
-            "Dialogue": dialogue
+            "Dialogue": dialogue,
+            "Subject": subject
         }
         collection.insert_one(new_user)
         client.close()
 
-        flash("User added successfully.", "success")  # Flash success message
+        flash("User added successfully!", "success")
         return redirect(url_for('index'))
     else:
         return render_template('add_user.html')
