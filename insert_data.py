@@ -6,8 +6,8 @@ import os
 def insert_data():
     # Connect to MongoDB
     client = MongoClient("mongodb+srv://dubeyabhinav1001:dubey@cluster0.rjzqrrm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-    db = client['dbms']  
-    collection = db['bday']  
+    db = client['dbms']
+    collection = db['bday']
 
     # Data to insert
     data = [
@@ -27,7 +27,7 @@ def insert_data():
         },
         {
             "Name": "Abhi",
-            "Birthday": "1990-03-07",  # Example birthday as string
+            "Birthday": datetime.datetime(1990, 3, 7),  # Use datetime.datetime object for consistency
             "Year": "1990",
             "Email": "abhinavkumard.ec21@rvce.edu.in",
             "Dialogue": "Happy Birthday Abhi!"
@@ -46,17 +46,15 @@ def insert_data():
 
         # Check if today is someone's birthday
         today = datetime.datetime.now().strftime("%d-%m")
-        if isinstance(doc['Birthday'], str):
-            doc['Birthday'] = datetime.datetime.strptime(doc['Birthday'], "%Y-%m-%d")
-        bday = doc['Birthday'].strftime("%d-%m")
+        bday = doc['Birthday'].strftime("%d-%m")  # Convert to string for comparison
         if today == bday:
             # Retrieve GMAIL_ID and GMAIL_PSWD from environment variables
-            GMAIL_ID = os.getenv('GMAIL_ID')  
-            GMAIL_PSWD = os.getenv('GMAIL_PSWD')  
-            sendEmail(doc['Email'], "Happy Birthday", doc['Dialogue'], GMAIL_ID, GMAIL_PSWD)  
+            GMAIL_ID = os.getenv('GMAIL_ID')
+            GMAIL_PSWD = os.getenv('GMAIL_PSWD')
+            sendEmail(doc['Email'], "Happy Birthday", doc['Dialogue'], GMAIL_ID, GMAIL_PSWD)
             print(f"Wished Happy Birthday to {doc['Name']}.")
 
-    client.close()  
+    client.close()
 
 if __name__ == "__main__":
     insert_data()

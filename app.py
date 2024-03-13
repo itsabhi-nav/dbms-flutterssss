@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 import re
 from dotenv import load_dotenv
-from flask import Flask, render_template, session, request, redirect, url_for
+from flask import Flask, render_template, session, request, redirect, url_for, flash
 from pymongo import MongoClient
 from email_utils import sendEmail
 import pymongo
@@ -96,12 +96,14 @@ def add_user():
         dialogue = request.form['dialogue']
         
         if not re.match(r'^\d{4}-\d{2}-\d{2}$', birthday_str):
-            return "Invalid date format. Please use YYYY-MM-DD format for birthday."
+            flash("Invalid date format. Please use YYYY-MM-DD format for birthday.", "error")
+            return redirect(url_for('index'))
 
         try:
             birthday = datetime.datetime.strptime(birthday_str, "%Y-%m-%d").date()
         except ValueError:
-            return "Invalid date. Please provide a valid date in YYYY-MM-DD format."
+            flash("Invalid date. Please provide a valid date in YYYY-MM-DD format.", "error")
+            return redirect(url_for('index'))
         
         birthday_datetime = datetime.datetime.combine(birthday, datetime.datetime.min.time())
 
@@ -111,7 +113,8 @@ def add_user():
 
         existing_data = collection.find_one({"Name": name, "Email": email})
         if existing_data:
-            return "Data already exists in the database. Cannot add duplicate entries."
+            flash("Data already exists in the database. Cannot add duplicate entries.", "error")
+            return redirect(url_for('index'))
         
         new_user = {
             "Name": name,
@@ -123,6 +126,7 @@ def add_user():
         collection.insert_one(new_user)
         client.close()
 
+        flash("User added successfully.", "success")  # Flash success message
         return redirect(url_for('index'))
     else:
         return render_template('add_user.html')

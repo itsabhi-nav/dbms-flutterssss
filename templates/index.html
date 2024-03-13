@@ -77,6 +77,20 @@
                 padding: 10px;
             }
         }
+
+        .alert {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .alert-success {
+            background-color: #28a745;
+        }
+
+        .alert-error {
+            background-color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -96,6 +110,16 @@
             {% endfor %}
         </table>
         <button onclick="window.location.href='/add_user'">Add a new user</button>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
     </div>
 </body>
 </html>
