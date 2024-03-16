@@ -1,7 +1,8 @@
 import datetime
+import os
 from pymongo import MongoClient
 from email_utils import sendEmail
-import os
+from flask import request
 
 def insert_data():
     # Connect to MongoDB
@@ -56,7 +57,17 @@ def insert_data():
             # Retrieve GMAIL_ID and GMAIL_PSWD from environment variables
             GMAIL_ID = os.getenv('GMAIL_ID')  
             GMAIL_PSWD = os.getenv('GMAIL_PSWD')  
-            sendEmail(doc['Email'], doc['Subject'], doc['Dialogue'], GMAIL_ID, GMAIL_PSWD)  
+
+            # Handle file upload
+            photo_path = None
+            if 'photo' in request.files:
+                photo_file = request.files['photo']
+                if photo_file.filename != '':
+                    photo_path = os.path.join('uploads', photo_file.filename)
+                    photo_file.save(photo_path)
+
+            # Send email with attached image
+            sendEmail(doc['Email'], doc['Subject'], doc['Dialogue'], GMAIL_ID, GMAIL_PSWD, attachment=photo_path)
             print(f"Wished Happy Birthday to {doc['Name']}.")
 
     client.close()  

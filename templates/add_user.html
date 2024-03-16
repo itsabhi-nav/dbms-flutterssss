@@ -1,144 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add New User</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #ec99bd;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add New User</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #ec99bd;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      color: #007bff;
+    }
+
+    form {
+      position: relative; /* Make the form position relative for absolute positioning of loader */
+      width: 60%;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      font-weight: bold;
+      color: #333;
+      font-size: 18px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    input[type="submit"],
+    input[type="button"] {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover,
+    input[type="button"]:hover {
+      background-color: #0056b3;
+    }
+
+    .info {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #555;
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Loader CSS */
+    .loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 5px solid #f3f3f3; /* Light grey */
+      border-top: 5px solid #3498db; /* Blue */
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      display: none; /* Initially hide the loader */
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
       }
-
-      h1 {
-        text-align: center;
-        margin-top: 20px;
-        color: #007bff;
+      100% {
+        transform: rotate(360deg);
       }
+    }
+  </style>
+</head>
+<body>
+  <h1>Add New User</h1>
+  <div class="info">
+    <strong>Fill out the form to add a new user and send greetings automatically!</strong>
+  </div>
 
-      form {
-        position: relative; /* Make the form position relative for absolute positioning of loader */
-        width: 60%;
-        margin: 20px auto;
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      }
+  <form action="/add_user" method="post" onsubmit="showLoader()" enctype="multipart/form-data">
+    <label for="name">Name:</label><br />
+    <input type="text" id="name" name="name" required /><br />
 
-      label {
-        font-weight: bold;
-        color: #333;
-        font-size: 18px;
-      }
+    <label for="email">Email:</label><br />
+    <input type="email" id="email" name="email" required /><br />
 
-      input[type="text"],
-      input[type="email"],
-      textarea {
-        width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        box-sizing: border-box;
-        font-size: 16px;
-      }
+    <label for="birthday">Birthday (YYYY-MM-DD):</label><br />
+    <input type="text" id="birthday" name="birthday" required /><br />
 
-      input[type="submit"],
-      input[type="button"] {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
-      }
+    <label for="subject">Subject:</label><br />
+    <input type="text" id="subject" name="subject" required /><br />
 
-      input[type="submit"]:hover,
-      input[type="button"]:hover {
-        background-color: #0056b3;
-      }
+    <label for="dialogue">Dialogue:</label><br />
+    <textarea id="dialogue" name="dialogue" rows="4" required></textarea><br />
 
-      .info {
-        text-align: center;
-        margin-top: 20px;
-        font-size: 16px;
-        color: #555;
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      }
+    <label for="photo">Photo:</label><br />
+    <input type="file" id="photo" name="photo" accept="image/*" /><br /> <!-- Accept only image files -->
 
-      /* Loader CSS */
-      .loader {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border: 5px solid #f3f3f3; /* Light grey */
-        border-top: 5px solid #3498db; /* Blue */
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
-        display: none; /* Initially hide the loader */
-      }
+    <input type="submit" value="Submit" />
+    <input type="button" value="Back" onclick="window.history.back()" />
+    <div class="loader" id="loader"></div>
+    <!-- Loader element -->
+  </form>
 
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Add New User</h1>
-    <div class="info">
-      <strong
-        >Fill out the form to add a new user and send greetings
-        automatically!</strong
-      >
-    </div>
-
-    <form action="/add_user" method="post" onsubmit="showLoader()">
-      <label for="name">Name:</label><br />
-      <input type="text" id="name" name="name" required /><br />
-
-      <label for="email">Email:</label><br />
-      <input type="email" id="email" name="email" required /><br />
-
-      <label for="birthday">Birthday (YYYY-MM-DD):</label><br />
-      <input type="text" id="birthday" name="birthday" required /><br />
-
-      <label for="subject">Subject:</label><br />
-      <input type="text" id="subject" name="subject" required /><br />
-
-      <label for="dialogue">Dialogue:</label><br />
-      <textarea id="dialogue" name="dialogue" rows="4" required></textarea
-      ><br />
-
-      <input type="submit" value="Submit" />
-      <input type="button" value="Back" onclick="window.history.back()" />
-      <div class="loader" id="loader"></div>
-      <!-- Loader element -->
-    </form>
-
-    <script>
-      function showLoader() {
-        document.getElementById("loader").style.display = "block"; // Show the loader when form is submitted
-      }
-    </script>
-  </body>
+  <script>
+    function showLoader() {
+      document.getElementById("loader").style.display = "block"; // Show the loader when form is submitted
+    }
+  </script>
+</body>
 </html>
