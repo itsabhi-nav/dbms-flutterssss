@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, session, request, redirect, url_for, flash
 from pymongo import MongoClient
 from email_utils import sendEmail
-from werkzeug.utils import secure_filename
+import pymongo
 
 app = Flask(__name__)
 app.secret_key = 'abcdefghijklmnopqrstuvwxyz'
@@ -17,18 +17,6 @@ load_dotenv()
 # Enter your authentication details
 GMAIL_ID = os.getenv('GMAIL_ID')
 GMAIL_PSWD = os.getenv('GMAIL_PSWD')
-
-# Define allowed file extensions for photo uploads
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-# Define the directory for uploading photos
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-# Function to check if the filename has an allowed extension
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -64,12 +52,7 @@ def index():
             bday = item['Birthday'].strftime("%d-%m")  
             if today == bday and yearNow not in str(item['Year']):
                 try:
-                    # Check if photo is attached
-                    if 'Photo' in item:
-                        photo_path = os.path.join(app.config['UPLOAD_FOLDER'], item['Photo'])
-                        sendEmail(item['Email'], item['Subject'], item['Dialogue'], GMAIL_ID, GMAIL_PSWD, photo_path)
-                    else:
-                        sendEmail(item['Email'], item['Subject'], item['Dialogue'], GMAIL_ID, GMAIL_PSWD)
+                    sendEmail(item['Email'], item['Subject'], item['Dialogue'], GMAIL_ID, GMAIL_PSWD)
                     sent_emails.append({'name': item['Name'], 'status': 'success'})  
                     print(f"Wished Happy Birthday to {item['Name']}.")
                 except Exception as e:
@@ -125,21 +108,6 @@ def add_user():
         
         birthday_datetime = datetime.datetime.combine(birthday, datetime.datetime.min.time())
 
-        # Save uploaded photo to server
-        if 'photo' in request.files:
-            photo_file = request.files['photo']
-            if photo_file.filename == '':
-                flash('No selected file')
-                return redirect(request.url)
-            if photo_file and allowed_file(photo_file.filename):
-                filename = secure_filename(photo_file.filename)
-                photo_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            else:
-                flash('Invalid file type. Only PNG, JPG, JPEG, and GIF files are allowed.')
-                return redirect(request.url)
-        else:
-            filename = None  # No photo uploaded
-
         client = MongoClient("mongodb+srv://dubeyabhinav1001:dubey@cluster0.rjzqrrm.mongodb.net/?retryWrites=true&w=majority")
         db = client['dbms']  
         collection = db['bday']  
@@ -155,8 +123,7 @@ def add_user():
             "Year": str(birthday.year),
             "Email": email,
             "Dialogue": dialogue,
-            "Subject": subject,
-            "Photo": filename  # Save photo filename to database
+            "Subject": subject
         }
         collection.insert_one(new_user)
         client.close()
